@@ -1,0 +1,25 @@
+@import 'variables';
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    line-height: 1.2;
+}
+
+body {
+    margin: 0;
+}
+
+button {
+    cursor: pointer;
+}
+
+a {
+    text-decoration: none;
+}
+
+p {
+    margin: 0;
+}
