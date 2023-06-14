@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap');
+
+:root {
+    --font-primary: 'IBM Plex Sans KR', sans-serif;
+    /* base values */
+    --text-style: normal;
+
+    /* weight */
+    --text-weight-light: 400;
+    --text-weight-regular: 500;
+    --text-weight-midium: 600;
+    --text-weight-semibold: 700;
+}
+
+body,
+h1,
+h2,
+h3,
+input,
+select,
+button,
+p,
+span,
+li,
+a,
+svg,
+text {
+    font-family: var(--font-primary);
+    font-style: var(--text-style);
+}
+
+h1 {
+    margin: 0.2rem;
+    padding: 0.1rem;
+    font-weight: var(--text-weight-semibold);
+    font-size: 1.2rem;
+    line-height: 1.5rem;
+    color: #2d3748;
+}
+
+h2 {
+    margin: 0.2rem;
+    padding: 0.1rem;
+    font-weight: var(--text-weight-regular);
+    font-size: 1rem;
+    line-height: 1.2rem;
+    color: #2d3748;
+}
+
+h3 {
+    margin: 0.2rem;
+    padding: 0.1rem;
+    font-weight: var(--text-weight-midium);
+    font-size: 0.8rem;
+    line-height: 1rem;
+    color: #2d3748;
+}
+
+h4 {
+    margin: 0.2rem;
+    padding: 0.1rem;
+    font-weight: var(--text-weight-midium);
+    font-size: 0.7rem;
+    line-height: 1rem;
+    color: #2d3748;
+}
