@@ -64,7 +64,7 @@ function getDaumTileUrlFunction(type) {
     return tileUrlFunction;
 }
 
-const vworldWmtsUrl = `${VWORLD_API_WMTS_URL}/${VWORLD_API_KEY}`;
+const vworldWmtsUrl = `${VWORLD_API_WMTS_URL}/4C0C82D8-FEA1-381E-8C4E-E84E1BE3996A`;
 export const baseLayers = [
     new TileLayer({
         visible: false,
@@ -78,7 +78,7 @@ export const baseLayers = [
         visible: false,
         source: new XYZ({
             projection: 'EPSG:3857',
-            url: `${vworldWmtsUrl}/Satellite/{z}/{y}/{x}.png`,
+            url: `${vworldWmtsUrl}/Satellite/{z}/{y}/{x}.jpeg`,
             crossOrigin: 'anonymous',
         }),
     }),

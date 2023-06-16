@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { Navbar } from 'app/component/Navbar';
-import { Searchbar } from 'app/component/Searchbar';
+import { PlaceSearch } from 'app/component/PlaceSearch';
+import { SpatialSearch } from 'app/component/SpatialSearch';
 import { MapViewer } from 'app/component/MapViewer';
+
+import { MapSearchType, Coordinates } from 'shared/constants/types';
 
 const Container = styled.div`
     height: 100vh;
@@ -13,11 +16,24 @@ const Container = styled.div`
 `;
 
 export const Main = () => {
+    const [mapSearchType, setMapSearchType] = useState<MapSearchType>('place');
+    const [movedCenter, setMovedCenter] = useState<Coordinates>();
+
+    const searchComponent =
+        mapSearchType === 'place' ? (
+            <PlaceSearch moveToCenter={(coords: Coordinates) => setMovedCenter(coords)} />
+        ) : (
+            <SpatialSearch />
+        );
+
     return (
         <Container>
-            <Navbar />
-            <Searchbar />
-            <MapViewer />
+            <Navbar
+                data={{ searchType: mapSearchType }}
+                selectSearchType={(searchType: MapSearchType) => setMapSearchType(searchType)}
+            />
+            {searchComponent}
+            <MapViewer data={{ movedCenter }} />
         </Container>
     );
 };

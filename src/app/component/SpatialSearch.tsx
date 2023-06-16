@@ -1,17 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const SearchbarWrapper = styled.div`
+const SearchWrapper = styled.div`
     width: 350px;
     min-height: 0;
     border-right: 1px var(--border-color) solid;
     padding: 10px;
 `;
 
-export const Searchbar = () => {
+export const SpatialSearch = () => {
     return (
-        <SearchbarWrapper>
-            <h2>장소 검색</h2>
-        </SearchbarWrapper>
+        <SearchWrapper>
+            <h2>공간 검색</h2>
+        </SearchWrapper>
     );
 };
