@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { Navbar } from 'app/component/Navbar';
 import { Searchbar } from 'app/component/Searchbar';
 import { MapViewer } from 'app/component/MapViewer';
-import { LayerBox } from 'app/component/LayerBox';
 
 const Container = styled.div`
     height: 100vh;
@@ -19,7 +18,6 @@ export const Main = () => {
             <Navbar />
             <Searchbar />
             <MapViewer />
-            <LayerBox />
         </Container>
     );
 };

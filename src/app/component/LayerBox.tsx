@@ -3,8 +3,13 @@ import styled from 'styled-components';
 
 import { ToggleButton } from 'app/component/common-ui/index';
 
+import shp from 'shpjs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleUp, faAngleDown, faFileImport } from '@fortawesome/free-solid-svg-icons';
+
+import { GeoJSON } from 'geojson';
+
+import { BaseMapTypes } from 'shared/constants/types';
 
 const LayerBoxWrapper = styled.div`
     position: fixed;
@@ -37,13 +42,58 @@ const LayerControl = styled.div`
     }
 `;
 
-const MapSelector = styled.div`
+const MapSelectBox = styled.div`
     padding: 10px;
     border-top: 1px var(--border-color) solid;
 `;
 
-export const LayerBox = () => {
+const MapSelectBoxHeader = styled.div`
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    svg {
+        margin-left: auto;
+        cursor: pointer;
+    }
+`;
+
+const MapFileInput = styled.input`
+    display: none;
+`;
+
+const UserLayerList = styled.div`
+    margin-top: 5px;
+    padding: 4px;
+    ul {
+        li {
+            font-size: 0.8rem;
+            border-bottom: 1px var(--border-color) solid;
+            padding: 4px 10px;
+            cursor: pointer;
+            &:hover {
+                background-color: rgba(0, 89, 223, 0.08);
+                color: #0059df;
+            }
+        }
+    }
+`;
+
+interface LayerBoxProps {
+    changeBaseMap: (type: BaseMapTypes) => void;
+    addUserMap: (geojson: GeoJSON) => void;
+}
+
+export const LayerBox = (props: LayerBoxProps) => {
     const [isOpen, setIsOpen] = useState(true);
+    const [layerList, setLayerList] = useState<string[]>([]);
+
+    useEffect(() => {
+        return () => {
+            console.log('destroy');
+            const fileInput = document.querySelector('#user_map_selector') as HTMLInputElement;
+            fileInput.value = '';
+        };
+    }, []);
 
     return (
         <LayerBoxWrapper>
@@ -58,7 +108,7 @@ export const LayerBox = () => {
                 />
             </LayerBoxTitleBar>
             <LayerControl className={isOpen ? '' : 'closed'}>
-                <MapSelector>
+                <MapSelectBox>
                     <h4>배경지도</h4>
                     <ToggleButton
                         items={[
@@ -69,12 +119,58 @@ export const LayerBox = () => {
                             { value: 'kakao.satellite', label: '카카오영상' },
                         ]}
                         defaultValue='vw.base'
+                        onBtnChanged={(selected) => {
+                            const baseMap = String(selected) as BaseMapTypes;
+                            props.changeBaseMap(baseMap);
+                        }}
                     />
-                </MapSelector>
-                <MapSelector>
-                    <h4>배경지도</h4>
-                    <FontAwesomeIcon icon={faFileImport} color={'#718096'} />
-                </MapSelector>
+                </MapSelectBox>
+                <MapSelectBox>
+                    <MapSelectBoxHeader>
+                        <h4>배경지도</h4>
+                        <FontAwesomeIcon
+                            icon={faFileImport}
+                            color={'#718096'}
+                            onClick={() => {
+                                const id = '#user_map_selector';
+                                const fileInput = document.querySelector(id) as HTMLInputElement;
+                                fileInput.click();
+                            }}
+                        />
+                        <MapFileInput
+                            id='user_map_selector'
+                            type='file'
+                            accept='.shp, .dbf, .zip'
+                            onChange={async (e) => {
+                                const files = e.target.files;
+                                if (files === null) return;
+                                let shpFile: ArrayBuffer | null = null;
+                                let dbfFile: ArrayBuffer | null = null;
+                                [...files].forEach(async (f) => {
+                                    const { name } = f;
+                                    if (name.split('.').at(-1) === 'shp') {
+                                        shpFile = await new Blob([f]).arrayBuffer();
+                                    } else {
+                                        dbfFile = await new Blob([f]).arrayBuffer();
+                                    }
+                                    if (shpFile && dbfFile) {
+                                        const geojson = shp.combine([shp.parseShp(shpFile), shp.parseDbf(dbfFile)]);
+                                        setLayerList([...layerList, name]);
+                                        props.addUserMap(geojson);
+                                    }
+                                });
+                            }}
+                            multiple
+                        />
+                    </MapSelectBoxHeader>
+                    <UserLayerList>
+                        <ul>
+                            {layerList.map((layer) => {
+                                return <li key={layer}>{layer}</li>;
+                            })}
+                        </ul>
+                    </UserLayerList>
+                </MapSelectBox>
             </LayerControl>
         </LayerBoxWrapper>
     );
