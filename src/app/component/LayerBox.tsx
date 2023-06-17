@@ -89,7 +89,6 @@ export const LayerBox = (props: LayerBoxProps) => {
 
     useEffect(() => {
         return () => {
-            console.log('destroy');
             const fileInput = document.querySelector('#user_map_selector') as HTMLInputElement;
             fileInput.value = '';
         };

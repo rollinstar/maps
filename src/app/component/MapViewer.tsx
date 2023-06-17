@@ -11,14 +11,19 @@ import VectorSource from 'ol/source/Vector';
 import OlGeoJSON from 'ol/format/GeoJSON';
 import Select from 'ol/interaction/Select';
 import { getCenter } from 'ol/extent';
-import { Overlay } from 'ol';
+import { Icon, Style } from 'ol/style.js';
+import { Overlay, Feature } from 'ol';
 import { get as getOlProj, Projection, addProjection } from 'ol/proj';
+import { Point } from 'ol/geom';
+
 import proj4 from 'proj4';
 
 import { baseLayerGroup, BASE_TILE_MAP_CODE } from 'shared/constants/baseTileMap';
 import { defaultStyle } from 'shared/constants/map';
-import { BaseMapTypes } from 'shared/constants/types';
+import { BaseMapTypes, Coordinates } from 'shared/constants/types';
 import { GeoJSON } from 'geojson';
+
+import pin from 'assets/img/marker.svg';
 
 const MapContainer = styled.div`
     flex: 1;
@@ -72,11 +77,45 @@ const PopupMain = styled.p`
     font-size: 0.7rem;
 `;
 
-export const MapViewer = () => {
+interface MapViewerData {
+    movedCenter?: Coordinates;
+}
+
+interface MapViewerProps {
+    data: MapViewerData;
+}
+
+export const MapViewer = (props: MapViewerProps) => {
     const mapRef = useRef<HTMLDivElement | null>(null);
     const [MapObj, setMapObj] = useState<Map | undefined>();
     const [baseMapVisible, setBaseMapVisible] = useState(0);
     const [popupContent, setPopupContent] = useState('');
+
+    useEffect(() => {
+        if (!props.data?.movedCenter || !MapObj) return;
+        const center: Coordinates = props.data?.movedCenter;
+
+        const style = new Style({
+            image: new Icon({ opacity: 1, scale: 1, src: pin }),
+        });
+        const marker = new Feature({
+            geometry: new Point([center.lon, center.lat]),
+        });
+        const markerSource = new VectorSource();
+        markerSource.addFeature(marker);
+        const markerLayer = new VectorLayer({
+            source: markerSource,
+            style: style,
+            name: 'marker',
+        });
+        MapObj.getAllLayers()
+            .filter((layer) => layer.get('name') === 'marker')
+            .forEach((layer) => MapObj.removeLayer(layer));
+        MapObj.addLayer(markerLayer);
+        MapObj.getView().setCenter([center.lon, center.lat]);
+        MapObj.getView().setZoom(15);
+        setMapObj(MapObj);
+    }, [props.data.movedCenter]);
 
     function setProj() {
         const code = 'EPSG:5181';
@@ -94,7 +133,6 @@ export const MapViewer = () => {
         );
 
         const olProj = getOlProj('EPSG:4326');
-        console.log(olProj);
         const addedProj = new Projection({
             code: code,
             units: 'm',
@@ -173,7 +211,6 @@ export const MapViewer = () => {
                         style: () => defaultStyle,
                     });
                     MapObj.addLayer(vectorLayer);
-                    console.log(MapObj.getOverlayById('feature-info'));
                     const select = new Select({
                         layers: [vectorLayer],
                         filter: function (feature, layer) {

@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { MapSearchType } from 'shared/constants/types';
+
 const NavbarWrapper = styled.div`
     width: 56px;
     min-height: 0;
@@ -23,7 +25,7 @@ const NavBtns = styled.ul`
         line-height: 1.75;
         letter-spacing: 0.1em;
         color: #4a5568;
-        :hover {
+        &:hover {
             background-color: #c7f1ff;
         }
         &.selected {
@@ -33,12 +35,27 @@ const NavBtns = styled.ul`
     }
 `;
 
-export const Navbar = () => {
+interface NavbarData {
+    searchType: MapSearchType;
+}
+
+interface NavbarProps {
+    data: NavbarData;
+    selectSearchType: (searchType: MapSearchType) => void;
+}
+
+export const Navbar = (props: NavbarProps) => {
+    const selected = (value: MapSearchType) => (props.data.searchType === value ? 'selected' : '');
+
     return (
         <NavbarWrapper>
             <NavBtns>
-                <li>장소</li>
-                <li>공간</li>
+                <li className={selected('place')} onClick={() => props.selectSearchType('place')}>
+                    장소
+                </li>
+                <li className={selected('spatial')} onClick={() => props.selectSearchType('spatial')}>
+                    공간
+                </li>
             </NavBtns>
         </NavbarWrapper>
     );
