@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { Coordinates } from 'shared/constants/types';
-
-import { kakaoApis } from 'app/api/kakao.api';
+import { kakaoApis, PlaceSearchParamType } from 'app/api/kakao.api';
+import { Coordinates, PlaceListType } from 'shared/constants/types';
 
 const SearchWrapper = styled.div`
     width: 350px;
@@ -20,7 +19,7 @@ const SearchBox = styled.div`
     align-items: center;
 `;
 
-const SearchInput = styled.input.attrs((props) => ({
+const SearchInput = styled.input.attrs(() => ({
     type: 'text',
 }))`
     border: 2px var(--border-color) solid;
@@ -58,21 +57,6 @@ const Places = styled.ul`
     }
 `;
 
-interface PlaceListType {
-    address_name: string;
-    category_group_code: string;
-    category_group_name: string;
-    category_name: string;
-    distance: string;
-    id: string;
-    phone: string;
-    place_name: string;
-    place_url: string;
-    road_address_name: string;
-    x: string;
-    y: string;
-}
-
 interface PlaceSearchProps {
     moveToCenter: (coords: Coordinates) => void;
 }
@@ -89,7 +73,7 @@ export const PlaceSearch = (props: PlaceSearchProps) => {
                         e.preventDefault();
                         if (e.key.toLowerCase() !== 'enter') return;
                         try {
-                            const params = { query: (e.target as HTMLTextAreaElement).value };
+                            const params: PlaceSearchParamType = { query: (e.target as HTMLTextAreaElement).value };
                             if (!params.query) return;
                             const { data } = await kakaoApis.placeSearch(params);
                             const { documents } = data;

@@ -22,43 +22,23 @@ const daumTileGrid = new TileGrid({
 });
 
 function getDaumTileUrlFunction(type) {
-    const tileUrlFunction = function (tileCoord, pixelRatio, projection) {
+    const tileUrlFunction = function (tileCoord) {
         const res = this.getTileGrid().getResolutions();
         const sVal = res[tileCoord[0]];
-
         const yLength = 988576 - -60000 + 524288 + 524288;
         let yTile = yLength / (sVal * this.getTileGrid().getTileSize());
-
         const tileGap = Math.pow(2, tileCoord[0] - 1);
         yTile = yTile - tileGap;
-
         const xTile = tileCoord[1] - tileGap;
-
-        if (type == 'base') {
-            return (
-                'http://map' +
-                Math.floor(Math.random() * (4 - 1 + 1) + 1) +
-                '.daumcdn.net/map_2d_hd/2111ydg/L' +
-                (15 - tileCoord[0]) +
-                '/' +
-                (yTile + tileCoord[2]) +
-                '/' +
-                xTile +
-                '.png'
-            );
-        } else if (type == 'satellite') {
-            return (
-                'https://map' +
-                Math.floor(Math.random() * (4 - 1 + 1) + 1) +
-                '.daumcdn.net/map_skyview_hd/L' +
-                (15 - tileCoord[0]) +
-                '/' +
-                (yTile + tileCoord[2]) +
-                '/' +
-                xTile +
-                '.jpg'
-            );
-        }
+        const daumMapRouteNum = Math.floor(Math.random() * (4 - 1 + 1) + 1);
+        const z = 15 - tileCoord[0];
+        const y = yTile + tileCoord[2];
+        const x = xTile;
+        const tile = type === 'base' ? 'map_2d_hd' : 'map_skyview_hd';
+        const ext = type === 'base' ? '.png' : '.jpg';
+        const url = `http://map${daumMapRouteNum}.daumcdn.net/${tile}/2111ydg/L${z}/${y}/${x}${ext}`;
+        console.log(url);
+        return url;
     };
 
     return tileUrlFunction;
@@ -69,7 +49,6 @@ export const baseLayers = [
     new TileLayer({
         visible: false,
         source: new XYZ({
-            projection: 'EPSG:3857',
             url: `${vworldWmtsUrl}/Base/{z}/{y}/{x}.png`,
             crossOrigin: 'anonymous',
         }),
@@ -77,7 +56,6 @@ export const baseLayers = [
     new TileLayer({
         visible: false,
         source: new XYZ({
-            projection: 'EPSG:3857',
             url: `${vworldWmtsUrl}/Satellite/{z}/{y}/{x}.jpeg`,
             crossOrigin: 'anonymous',
         }),
@@ -85,7 +63,6 @@ export const baseLayers = [
     new TileLayer({
         visible: false,
         source: new XYZ({
-            projection: 'EPSG:3857',
             url: `${vworldWmtsUrl}/midnight/{z}/{y}/{x}.png`,
             crossOrigin: 'anonymous',
         }),
@@ -98,6 +75,13 @@ export const baseLayers = [
             tilePixelRatio: 2,
         }),
         visible: false,
+    }),
+    new TileLayer({
+        visible: false,
+        source: new XYZ({
+            url: `${vworldWmtsUrl}/Base/{z}/{y}/{x}.png`,
+            crossOrigin: 'anonymous',
+        }),
     }),
 ];
 
