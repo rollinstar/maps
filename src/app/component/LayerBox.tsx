@@ -79,7 +79,10 @@ const UserLayerList = styled.div`
 `;
 
 interface LayerBoxProps {
-    changeBaseMap: (type: BaseMapTypes) => void;
+    data: {
+        searchType: string;
+    };
+    changeBaseMap: (id: BaseMapTypes) => void;
     addUserMap: (geojson: GeoJSON) => void;
 }
 
@@ -98,6 +101,7 @@ export const LayerBox = (props: LayerBoxProps) => {
         <LayerBoxWrapper>
             <LayerBoxTitleBar>
                 <h3>지도 선택</h3>
+
                 <FontAwesomeIcon
                     icon={isOpen ? faAngleUp : faAngleDown}
                     color={'#718096'}
@@ -126,20 +130,22 @@ export const LayerBox = (props: LayerBoxProps) => {
                 </MapSelectBox>
                 <MapSelectBox>
                     <MapSelectBoxHeader>
-                        <h4>배경지도</h4>
-                        <FontAwesomeIcon
-                            icon={faFileImport}
-                            color={'#718096'}
-                            onClick={() => {
-                                const id = '#user_map_selector';
-                                const fileInput = document.querySelector(id) as HTMLInputElement;
-                                fileInput.click();
-                            }}
-                        />
+                        <h4>사용자 지도</h4>
+                        {props.data.searchType === 'spatial' || (
+                            <FontAwesomeIcon
+                                icon={faFileImport}
+                                color={'#718096'}
+                                onClick={() => {
+                                    const id = '#user_map_selector';
+                                    const fileInput = document.querySelector(id) as HTMLInputElement;
+                                    fileInput.click();
+                                }}
+                            />
+                        )}
                         <MapFileInput
                             id='user_map_selector'
                             type='file'
-                            accept='.shp, .dbf, .zip'
+                            accept='.shp, .dbf, .cpg'
                             onChange={async (e) => {
                                 const files = e.target.files;
                                 if (files === null) return;
@@ -149,17 +155,13 @@ export const LayerBox = (props: LayerBoxProps) => {
                                 [...files].forEach(async (f) => {
                                     const { name } = f;
                                     const ext = name.split('.').at(-1);
-                                    if (ext === 'shp') {
-                                        shpFile = await new Blob([f]).arrayBuffer();
-                                    } else if (ext === 'dbf') {
-                                        dbfFile = await new Blob([f]).arrayBuffer();
-                                    } else if (ext === 'cpg') {
-                                        cpgFile = await new Blob([f]).arrayBuffer();
-                                    }
-                                    if (shpFile && dbfFile) {
+                                    if (ext === 'shp') shpFile = await new Blob([f]).arrayBuffer();
+                                    else if (ext === 'dbf') dbfFile = await new Blob([f]).arrayBuffer();
+                                    else if (ext === 'cpg') cpgFile = await new Blob([f]).arrayBuffer();
+                                    if (shpFile && dbfFile && cpgFile) {
                                         const geojson = shp.combine([
                                             shp.parseShp(shpFile, 'EPSG:4326'),
-                                            shp.parseDbf(dbfFile),
+                                            shp.parseDbf(dbfFile, cpgFile),
                                         ]);
                                         setLayerList([...layerList, name]);
                                         props.addUserMap(geojson);

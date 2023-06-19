@@ -1,0 +1,14 @@
+{
+	http_port 8080
+}
+
+http:// {
+	log {
+	    output stdout
+	}
+
+	root * /usr/share/caddy/html
+	encode gzip
+	try_files {path} /index.html
+	file_server
+}

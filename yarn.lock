@@ -2119,11 +2119,6 @@
     "@types/react" "*"
     csstype "^3.0.2"
 
-"@types/web@^0.0.99":
-  version "0.0.99"
-  resolved "https://registry.yarnpkg.com/@types/web/-/web-0.0.99.tgz#a9c3a088e4634f6b08977f4fc733c916c2b0d50e"
-  integrity sha512-xMz3tOvtkZzc7RpQrDNiLe5sfMmP+fz8bOxHIZ/U8qXyvzDX4L4Ss1HCjor/O9DSelba+1iXK1VM7lruX28hiQ==
-
 "@typescript-eslint/eslint-plugin@^5.59.0":
   version "5.59.9"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/eslint-plugin/-/eslint-plugin-5.59.9.tgz#2604cfaf2b306e120044f901e20c8ed926debf15"
@@ -4752,11 +4747,6 @@ shallowequal@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/shallowequal/-/shallowequal-1.1.0.tgz#188d521de95b9087404fd4dcb68b13df0ae4e7f8"
   integrity sha512-y0m1JoUZSlPAjXVtPPW70aZWfIL/dSP7AFkRnniLCrK/8MDKog3TySTBmckD+RObVxH0v4Tox67+F14PdED2oQ==
-
-shapefile-to-geojson@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/shapefile-to-geojson/-/shapefile-to-geojson-1.0.1.tgz#142848e6defa5834c284c5cc95cde0506fd9ff4f"
-  integrity sha512-SIP0l6Nj6DDKJJ9kgOR0hTlMu3keAKYQeXdhQ57ouXYCUUIAEE0g2Ms10LXFwQZa/lnoiUOb2CblYrv77AF1Xg==
 
 shebang-command@^2.0.0:
   version "2.0.0"
