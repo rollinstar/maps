@@ -18,12 +18,19 @@ const Container = styled.div`
 export const Main = () => {
     const [mapSearchType, setMapSearchType] = useState<MapSearchType>('place');
     const [movedCenter, setMovedCenter] = useState<Coordinates>();
+    const [clickedCoord, setClickedCoord] = useState<Coordinates>();
+    const [bufferSize, setBufferSize] = useState(500);
+    const [schoolCoords, setScoolCoords] = useState<Coordinates[]>();
 
     const searchComponent =
         mapSearchType === 'place' ? (
             <PlaceSearch moveToCenter={(coords: Coordinates) => setMovedCenter(coords)} />
         ) : (
-            <SpatialSearch />
+            <SpatialSearch
+                data={{ clickedCoord }}
+                bufferSize={(size: number) => setBufferSize(size)}
+                schoolCoords={(coords: Coordinates[]) => setScoolCoords(coords)}
+            />
         );
 
     return (
@@ -33,7 +40,10 @@ export const Main = () => {
                 selectSearchType={(searchType: MapSearchType) => setMapSearchType(searchType)}
             />
             {searchComponent}
-            <MapViewer data={{ movedCenter }} />
+            <MapViewer
+                data={{ movedCenter, searchType: mapSearchType, bufferSize, clickedCoord, schoolCoords }}
+                clickedPostion={(coords: Coordinates) => setClickedCoord(coords)}
+            />
         </Container>
     );
 };

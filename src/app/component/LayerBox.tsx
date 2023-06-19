@@ -145,15 +145,22 @@ export const LayerBox = (props: LayerBoxProps) => {
                                 if (files === null) return;
                                 let shpFile: ArrayBuffer | null = null;
                                 let dbfFile: ArrayBuffer | null = null;
+                                let cpgFile: ArrayBuffer | null = null;
                                 [...files].forEach(async (f) => {
                                     const { name } = f;
-                                    if (name.split('.').at(-1) === 'shp') {
+                                    const ext = name.split('.').at(-1);
+                                    if (ext === 'shp') {
                                         shpFile = await new Blob([f]).arrayBuffer();
-                                    } else {
+                                    } else if (ext === 'dbf') {
                                         dbfFile = await new Blob([f]).arrayBuffer();
+                                    } else if (ext === 'cpg') {
+                                        cpgFile = await new Blob([f]).arrayBuffer();
                                     }
                                     if (shpFile && dbfFile) {
-                                        const geojson = shp.combine([shp.parseShp(shpFile), shp.parseDbf(dbfFile)]);
+                                        const geojson = shp.combine([
+                                            shp.parseShp(shpFile, 'EPSG:4326'),
+                                            shp.parseDbf(dbfFile),
+                                        ]);
                                         setLayerList([...layerList, name]);
                                         props.addUserMap(geojson);
                                     }
