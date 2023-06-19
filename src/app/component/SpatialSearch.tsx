@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { Button } from 'app/component/common-ui/index';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
 
-import { get as getProj, transform } from 'ol/proj';
-import { kakaoApis, CategorySearchParamType } from 'app/api/kakao.api';
+import { transform } from 'ol/proj';
+import { kakaoApis, CategorySearchParamType, CategorySearchResultDocumentType } from 'app/api/kakao.api';
 import { Coordinates, PlaceListType } from 'shared/constants/types';
 import { pieChartBackgroundColors, pieChartBorderColors } from 'shared/constants/common';
 
@@ -105,19 +105,33 @@ export const SpatialSearch = (props: SpatialSearchProps) => {
     const [bufferRadius, setBufferRadius] = useState(500);
     const [placeList, setPlaceList] = useState<PlaceListType[]>();
     const [pieChart, setPieChart] = useState<PieChartDataType>({ labels: [], datasets: [{ data: [] }] });
+    const [clickedPostion, setClickedPosition] = useState({ x: 0, y: 0 });
+
+    useEffect(() => {
+        return () => {
+            setBufferRadius(500);
+            setClickedPosition({ x: 0, y: 0 });
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!props.data.clickedCoord) return;
+        const { lat, lon } = props.data.clickedCoord;
+        const [x, y] = transform([lat, lon], 'EPSG:3857', 'EPSG:4326');
+        setClickedPosition({ x, y });
+    }, [props.data.clickedCoord]);
 
     return (
         <SearchWrapper>
             <h2>공간&#40;학교&#41; 검색</h2>
             <SearchBox>
-                <h3>현재 위치</h3>
                 <p>
                     <span>위도&nbsp;:&nbsp;</span>
-                    <span>{props.data.clickedCoord?.lat}</span>
+                    <span>{clickedPostion.y || ''}</span>
                 </p>
                 <p>
                     <span>경도&nbsp;:&nbsp;</span>
-                    <span>{props.data.clickedCoord?.lon}</span>
+                    <span>{clickedPostion.x || ''}</span>
                 </p>
                 <BufferSize>
                     <label>거리</label>
@@ -150,8 +164,9 @@ export const SpatialSearch = (props: SpatialSearchProps) => {
                             setPlaceList(documents);
                             type countsObjType = { [key: string]: number };
                             const counts: countsObjType = {};
-                            const coords: Coordinates[] = documents.map((e) => {
+                            const coords: Coordinates[] = documents.map((e: CategorySearchResultDocumentType) => {
                                 const category = e.category_name.split('>').at(-1);
+                                if (!category) return;
                                 if (!Object.prototype.hasOwnProperty.call(counts, category)) counts[category] = 1;
                                 else counts[category] += 1;
                                 return { lat: e.y, lon: e.x };

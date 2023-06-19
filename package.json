@@ -17,7 +17,6 @@
         "@fortawesome/free-regular-svg-icons": "^6.4.0",
         "@fortawesome/free-solid-svg-icons": "^6.4.0",
         "@fortawesome/react-fontawesome": "^0.2.0",
-        "@types/web": "^0.0.99",
         "axios": "^1.4.0",
         "chart.js": "^4.3.0",
         "ol": "^7.4.0",
@@ -26,7 +25,6 @@
         "react-chartjs-2": "^5.2.0",
         "react-dom": "^18.2.0",
         "react-router-dom": "^6.12.1",
-        "shapefile-to-geojson": "^1.0.1",
         "shpjs": "^4.0.4",
         "styled-components": "^6.0.0-rc.3"
     },

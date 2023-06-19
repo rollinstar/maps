@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { Navbar } from 'app/component/Navbar';
@@ -16,14 +16,21 @@ const Container = styled.div`
 `;
 
 export const Main = () => {
-    const [mapSearchType, setMapSearchType] = useState<MapSearchType>('place');
+    const [searchType, setMapSearchType] = useState<MapSearchType>('place');
     const [movedCenter, setMovedCenter] = useState<Coordinates>();
-    const [clickedCoord, setClickedCoord] = useState<Coordinates>();
+    const [clickedCoord, setClickedCoord] = useState<Coordinates | undefined>();
     const [bufferSize, setBufferSize] = useState(500);
     const [schoolCoords, setScoolCoords] = useState<Coordinates[]>();
 
+    useEffect(() => {
+        if (searchType === 'place') {
+            setClickedCoord(undefined);
+            setBufferSize(500);
+        }
+    }, [searchType]);
+
     const searchComponent =
-        mapSearchType === 'place' ? (
+        searchType === 'place' ? (
             <PlaceSearch moveToCenter={(coords: Coordinates) => setMovedCenter(coords)} />
         ) : (
             <SpatialSearch
@@ -36,12 +43,12 @@ export const Main = () => {
     return (
         <Container>
             <Navbar
-                data={{ searchType: mapSearchType }}
+                data={{ searchType: searchType }}
                 selectSearchType={(searchType: MapSearchType) => setMapSearchType(searchType)}
             />
             {searchComponent}
             <MapViewer
-                data={{ movedCenter, searchType: mapSearchType, bufferSize, clickedCoord, schoolCoords }}
+                data={{ movedCenter, searchType, bufferSize, clickedCoord, schoolCoords }}
                 clickedPostion={(coords: Coordinates) => setClickedCoord(coords)}
             />
         </Container>

@@ -6,6 +6,7 @@ import { LayerBox } from 'app/component/LayerBox';
 import 'ol/ol.css';
 import Map from 'ol/Map';
 import View from 'ol/View';
+import olEvent from 'ol/events/Event';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import OlGeoJSON from 'ol/format/GeoJSON';
@@ -126,16 +127,16 @@ export const MapViewer = (props: MapViewerProps) => {
         const searchType = props.data.searchType;
         if (!MapObj) return;
         removeCustomLayers();
-        const fn = function (e) {
+        const fn = function (e: olEvent) {
             const [lat, lon] = e.coordinate;
             const coords = { lat, lon };
             props.clickedPostion(coords);
         };
-        if (searchType === 'place') {
-            MapObj.un('click', fn);
-            return;
-        }
-        MapObj.on('click', fn);
+        if (searchType === 'place') MapObj.un('click', fn);
+        else MapObj.on('click', fn);
+        MapObj.getAllLayers()
+            .filter((layer) => layer.get('name') === 'user-layer')
+            .forEach((layer) => layer.setVisible(searchType === 'place'));
     }, [props.data.searchType]);
 
     useEffect(() => {
@@ -188,16 +189,8 @@ export const MapViewer = (props: MapViewerProps) => {
     function initMap(mapEl: React.MutableRefObject<HTMLDivElement | null>): Map | undefined {
         if (!mapEl.current) return;
         proj4.defs(
-            'EPSG:3857',
-            '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs',
-        );
-        proj4.defs(
             'EPSG:5181',
-            '+proj=tmerc +lat_0=38 +lon_0=127 +k=1 +x_0=200000 +y_0=500000 +ellps=GRS80 +units=m +no_defs',
-        );
-        proj4.defs(
-            'EPSG:5179',
-            '+proj=tmerc +lat_0=38 +lon_0=127.5 +k=0.9996 +x_0=1000000 +y_0=2000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs',
+            '+proj=tmerc +lat_0=38 +lon_0=127 +k=1 +x_0=200000 +y_0=500000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs',
         );
         register(proj4);
         const container = document.querySelector('#popup') as HTMLInputElement;
@@ -219,15 +212,6 @@ export const MapViewer = (props: MapViewerProps) => {
         return map;
     }
 
-    function switchTileMap(idx: number) {
-        if (!MapObj) return;
-        MapObj.getAllLayers().forEach((layer, i) => {
-            if (i === idx) layer.setVisible(true);
-            else layer.setVisible(false);
-        });
-        setMapObj(MapObj);
-    }
-
     const PopupElement = (
         <Popup id='popup'>
             <PopupCloser
@@ -247,9 +231,14 @@ export const MapViewer = (props: MapViewerProps) => {
             <MapContainer ref={mapRef} className={'map-container'} />
             {PopupElement}
             <LayerBox
-                changeBaseMap={(type: BaseMapTypes) => {
-                    const idx = BASE_TILE_MAP_CODE[type];
-                    switchTileMap(idx);
+                data={{ searchType: props.data.searchType }}
+                changeBaseMap={(id: BaseMapTypes) => {
+                    const idx = BASE_TILE_MAP_CODE[id as keyof typeof BASE_TILE_MAP_CODE];
+                    if (!MapObj) return;
+                    MapObj.getAllLayers().forEach((layer, i) => {
+                        layer.setVisible(i === idx);
+                    });
+                    setMapObj(MapObj);
                 }}
                 addUserMap={(geojosn) => {
                     if (!MapObj) return;
@@ -260,6 +249,7 @@ export const MapViewer = (props: MapViewerProps) => {
                         feature.getGeometry()?.transform('EPSG:4326', 'EPSG:3857');
                     });
                     const vectorLayer = new VectorLayer({
+                        name: 'user-layer',
                         source: vectorSource,
                         style: () => defaultStyle,
                     });
